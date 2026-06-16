@@ -4,12 +4,16 @@ import Swal from 'sweetalert2';
 
 const MyBidsPage = () => {
   const [mybids, setMyBids] = useState([]);
-  console.log('thsi is your bids', mybids);
+  console.log(mybids);
   const [loading, setLoading] = useState(true);
   const { user } = use(AuthContext);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/bids?email=${user?.email}`)
+    fetch(`http://localhost:3000/bids?email=${user?.email}`, {
+      headers: {
+        authorization: `Bearer ${user.accessToken}`,
+      },
+    })
       .then(res => res.json())
       .then(data => {
         setMyBids(data);
@@ -19,7 +23,7 @@ const MyBidsPage = () => {
         console.error('Error fetching bids:', err);
         setLoading(false);
       });
-  }, [user?.email]);
+  }, [user?.email, user.accessToken]);
 
   const handleRemoveBid = id => {
     Swal.fire({
@@ -31,24 +35,23 @@ const MyBidsPage = () => {
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, delete it!',
     }).then(result => {
-      if (result.isConfirmed);
-
-      fetch(`http://localhost:3000/bids/${id}`, {
-        method: 'DELETE',
-      })
-        .then(res => res.json())
-        .then(data => {
-          console.log('data delete', data);
-          if (data.deletedCount) {
-            Swal.fire({
-              title: 'Deleted!',
-              text: 'Your bid has been deleted.',
-              icon: 'success',
-            });
-            const remeingBid = mybids.filter(bid => bid._id !== id);
-            setMyBids(remeingBid);
-          }
-        });
+      if (result.isConfirmed)
+        fetch(`http://localhost:3000/bids/${id}`, {
+          method: 'DELETE',
+        })
+          .then(res => res.json())
+          .then(data => {
+            console.log('data delete', data);
+            if (data.deletedCount) {
+              Swal.fire({
+                title: 'Deleted!',
+                text: 'Your bid has been deleted.',
+                icon: 'success',
+              });
+              const remeingBid = mybids.filter(bid => bid._id !== id);
+              setMyBids(remeingBid);
+            }
+          });
     });
   };
 
