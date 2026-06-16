@@ -1,7 +1,11 @@
+import LatestProducts from '../components/LatestProducts';
+
 const HomePage = () => {
   return (
-    <div>HomePage</div>
-  )
-}
+    <div>
+      <LatestProducts></LatestProducts>
+    </div>
+  );
+};
 
-export default HomePage
+export default HomePage;

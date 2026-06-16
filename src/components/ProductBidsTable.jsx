@@ -1,64 +1,13 @@
-import { use, useEffect, useState } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import Swal from 'sweetalert2';
 
-const MyBidsPage = () => {
-  const [mybids, setMyBids] = useState([]);
-  console.log('thsi is your bids', mybids);
-  const [loading, setLoading] = useState(true);
-  const { user } = use(AuthContext);
 
-  useEffect(() => {
-    fetch(`http://localhost:3000/bids?email=${user?.email}`)
-      .then(res => res.json())
-      .then(data => {
-        setMyBids(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Error fetching bids:', err);
-        setLoading(false);
-      });
-  }, [user?.email]);
-
-  const handleRemoveBid = id => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!',
-    }).then(result => {
-      if (result.isConfirmed);
-
-      fetch(`http://localhost:3000/bids/${id}`, {
-        method: 'DELETE',
-      })
-        .then(res => res.json())
-        .then(data => {
-          console.log('data delete', data);
-          if (data.deletedCount) {
-            Swal.fire({
-              title: 'Deleted!',
-              text: 'Your bid has been deleted.',
-              icon: 'success',
-            });
-            const remeingBid = mybids.filter(bid => bid._id !== id);
-            setMyBids(remeingBid);
-          }
-        });
-    });
-  };
-
+const ProductBidsTable = ({ bids, loading }) => {
   if (loading) return <div className="skeleton h-40 w-full mt-10"></div>;
 
   return (
-    <div className=" container mx-auto mt-12">
+    <div className="mt-12">
       <h2 className="text-3xl font-bold text-gray-900 mb-6">
-        My Bids
-        <span className="text-purple-600">{mybids.length}</span>
+        Bids For This Products:{' '}
+        <span className="text-purple-600">{bids.length}</span>
       </h2>
 
       <div className="overflow-x-auto border border-gray-100 rounded-xl shadow-sm bg-white">
@@ -70,15 +19,14 @@ const MyBidsPage = () => {
               <th>Product</th>
               <th>Seller</th>
               <th>Bid Price</th>
-              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
 
           {/* Table Body */}
           <tbody>
-            {mybids.length > 0 ? (
-              mybids.map((bid, index) => (
+            {bids.length > 0 ? (
+              bids.map((bid, index) => (
                 <tr key={bid._id} className="hover:bg-gray-50">
                   <td className="font-bold text-gray-600">{index + 1}</td>
 
@@ -129,15 +77,13 @@ const MyBidsPage = () => {
                   {/* Bid Price */}
                   <td className="font-bold text-gray-800">${bid.bid_price}</td>
 
-                  <td className="font-bold text-gray-800">${bid.status}</td>
-
                   {/* Actions Column */}
                   <td className="flex gap-2">
-                    <button
-                      onClick={() => handleRemoveBid(bid._id)}
-                      className="btn btn-outline btn-error btn-xs"
-                    >
-                      Remove bid
+                    <button className="btn btn-outline btn-success btn-xs">
+                      Accept Offer
+                    </button>
+                    <button className="btn btn-outline btn-error btn-xs">
+                      Reject Offer
                     </button>
                   </td>
                 </tr>
@@ -156,4 +102,4 @@ const MyBidsPage = () => {
   );
 };
 
-export default MyBidsPage;
+export default ProductBidsTable;

@@ -8,6 +8,7 @@ import MyProductsPage from '../pages/MyProductsPage';
 import MyBidsPage from '../pages/MyBidsPage';
 import CreateProductPage from '../pages/CreateProductPage';
 import PrivetRoute from './PrivetRoute';
+import ProductDetails from '../components/ProductDetails';
 
 const router = createBrowserRouter([
   {
@@ -16,6 +17,17 @@ const router = createBrowserRouter([
     children: [
       { index: true, Component: HomePage },
       { path: 'products', Component: AllProductsPage },
+
+      {
+        path: 'productDetails/:id',
+        loader: ({ params }) =>
+          fetch(`http://localhost:3000/products/${params.id}`),
+        element: (
+          <PrivetRoute>
+            <ProductDetails></ProductDetails>
+          </PrivetRoute>
+        ),
+      },
       { path: 'login', Component: LoginPage },
       {
         path: 'register',

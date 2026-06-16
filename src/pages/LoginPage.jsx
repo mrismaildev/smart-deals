@@ -5,7 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 
 const LoginPage = () => {
-  const { loading, signInUser, signInGoogle } = use(AuthContext);
+  const { loading, signInUser, signInGoogle, setLoading } = use(AuthContext);
   const location = useLocation();
   console.log(location);
   const navigate = useNavigate();
@@ -17,12 +17,13 @@ const LoginPage = () => {
     const toastId = toast.loading('Signing in...');
 
     signInUser(email, password)
-      .then(res => {
+      .then(() => {
         toast.dismiss(toastId);
         toast.success('Logged in successfully!');
         navigate(location.state || '/');
       })
       .catch(err => {
+        setLoading(false);
         toast.dismiss(toastId);
         toast.error(err.message || 'Login failed!');
       });
@@ -30,18 +31,36 @@ const LoginPage = () => {
 
   const handleGoogleSignIn = () => {
     signInGoogle()
-      .then(() => {
+      .then(res => {
         toast.success('Google Login successful!');
+        const newUser = {
+          name: res.user.displayName,
+          email: res.user.email,
+          photo: res.user.photoURL,
+        };
+
+        fetch('http://localhost:3000/users', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify(newUser),
+        })
+          .then(res => res.json())
+          .then(data => {
+            console.log('data after user save', data);
+          });
+
         navigate(location.state || '/');
       })
       .catch(err => {
         toast.error(err.message);
+        setLoading(false);
       });
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200 p-4">
-
       <div className="card w-full max-w-sm bg-base-100 shadow-xl border border-base-300">
         <div className="card-body">
           <h2 className="text-2xl font-bold text-center">Login</h2>
@@ -53,7 +72,6 @@ const LoginPage = () => {
           </p>
 
           <form onSubmit={handleSingIn} className="mt-4">
-            
             <div className="form-control w-full">
               <label className="label">
                 <span className="label-text">Email</span>
@@ -81,7 +99,15 @@ const LoginPage = () => {
                 Forgot password?
               </a>
             </label>
-            <button className="btn btn-primary w-full mt-4">Sign In</button>
+
+            <button className="btn btn-primary w-full mt-4">
+              {' '}
+              {loading ? (
+                <span className="loading loading-spinner text-neutral"></span>
+              ) : (
+                'Sign In'
+              )}
+            </button>
           </form>
 
           <div className="divider">OR</div>
