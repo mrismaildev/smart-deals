@@ -14,7 +14,11 @@ const ProductDetails = () => {
   const product = useLoaderData();
 
   useEffect(() => {
-    fetch(`http://localhost:3000/product/bid/${product._id}`)
+    fetch(`http://localhost:3000/product/bid/${product._id}`, {
+      headers: {
+        authorization: `Bearer ${user.accessToken}`,
+      },
+    })
       .then(res => res.json())
       .then(data => {
         setBids(data);
@@ -24,7 +28,24 @@ const ProductDetails = () => {
         console.error('Error fetching bids:', err);
         setLoading(false);
       });
-  }, [product._id]);
+  }, [product._id, user]);
+
+  // useEffect(() => {
+  //   fetch(`http://localhost:3000/product/bid/${product._id}`, {
+  //     headers: {
+  //       authorization: `Bearer ${user.accessToken}`,
+  //     },
+  //   })
+  //     .then(res => res.json())
+  //     .then(data => {
+  //       setBids(data);
+  //       setLoading(false);
+  //     })
+  //     .catch(err => {
+  //       console.error('Error fetching bids:', err);
+  //       setLoading(false);
+  //     });
+  // }, [product._id, user]);
 
   const handleBidSubmit = e => {
     e.preventDefault();
