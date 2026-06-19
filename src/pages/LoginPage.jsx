@@ -3,12 +3,14 @@ import { FcGoogle } from 'react-icons/fc';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import useAxiosSecure from '../hooks/useAxiosSecure';
 
 const LoginPage = () => {
   const { loading, signInUser, signInGoogle, setLoading } = use(AuthContext);
   const location = useLocation();
   console.log(location);
   const navigate = useNavigate();
+  const axios = useAxiosSecure();
 
   const handleSingIn = e => {
     e.preventDefault();
@@ -20,6 +22,7 @@ const LoginPage = () => {
       .then(() => {
         toast.dismiss(toastId);
         toast.success('Logged in successfully!');
+        setLoading(false);
         navigate(location.state || '/');
       })
       .catch(err => {
@@ -39,17 +42,9 @@ const LoginPage = () => {
           photo: res.user.photoURL,
         };
 
-        fetch('http://localhost:3000/users', {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify(newUser),
-        })
-          .then(res => res.json())
-          .then(data => {
-            console.log('data after user save', data);
-          });
+        axios.post('/users', newUser).then(data => {
+          console.log('data after user save', data.data);
+        });
 
         navigate(location.state || '/');
       })

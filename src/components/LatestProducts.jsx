@@ -1,23 +1,26 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import HeroSection from './HeroSection';
+import useAxiosSecure from '../hooks/useAxiosSecure';
 
 const LatestProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  
+  const axios = useAxiosSecure();
   useEffect(() => {
-    fetch('http://localhost:3000/latest-products')
-      .then(res => res.json())
+    axios
+      .get('/latest-products')
+
       .then(data => {
-        setProducts(data);
+        setProducts(data.data);
         setLoading(false);
       })
       .catch(err => {
         console.error('Error:', err);
         setLoading(false);
       });
-  }, []);
+  }, [axios]);
 
   return (
     <>

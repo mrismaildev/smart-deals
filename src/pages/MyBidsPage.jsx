@@ -1,29 +1,46 @@
 import { use, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import Swal from 'sweetalert2';
+import useAxiosSecure from '../hooks/useAxiosSecure';
 
 const MyBidsPage = () => {
   const [mybids, setMyBids] = useState([]);
   console.log(mybids);
   const [loading, setLoading] = useState(true);
   const { user } = use(AuthContext);
+  const axiosSecure = useAxiosSecure();
 
   useEffect(() => {
-    fetch(`http://localhost:3000/bids?email=${user?.email}`, {
-      headers: {
-        authorization: `Bearer ${localStorage.getItem('access-token')}`,
-      },
-    })
-      .then(res => res.json())
-      .then(data => {
-        setMyBids(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Error fetching bids:', err);
-        setLoading(false);
-      });
-  }, [user?.email, user.accessToken]);
+    if (user?.email) {
+      axiosSecure
+        .get(`/bids?email=${user?.email}`)
+        .then(data => {
+          setMyBids(data.data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error('Error fetching bids:', err);
+          setLoading(false);
+        });
+    }
+  }, [axiosSecure, user?.email]);
+
+  // useEffect(() => {
+  //   fetch(`'https://smart-deals-server-projects.vercel.app'/bids?email=${user?.email}`, {
+  //     headers: {
+  //       authorization: `Bearer ${localStorage.getItem('access-token')}`,
+  //     },
+  //   })
+  //     .then(res => res.json())
+  //     .then(data => {
+  //       setMyBids(data);
+  //       setLoading(false);
+  //     })
+  //     .catch(err => {
+  //       console.error('Error fetching bids:', err);
+  //       setLoading(false);
+  //     });
+  // }, [user?.email, user.accessToken]);
 
   const handleRemoveBid = id => {
     Swal.fire({
@@ -36,22 +53,18 @@ const MyBidsPage = () => {
       confirmButtonText: 'Yes, delete it!',
     }).then(result => {
       if (result.isConfirmed)
-        fetch(`http://localhost:3000/bids/${id}`, {
-          method: 'DELETE',
-        })
-          .then(res => res.json())
-          .then(data => {
-            console.log('data delete', data);
-            if (data.deletedCount) {
-              Swal.fire({
-                title: 'Deleted!',
-                text: 'Your bid has been deleted.',
-                icon: 'success',
-              });
-              const remeingBid = mybids.filter(bid => bid._id !== id);
-              setMyBids(remeingBid);
-            }
-          });
+        axiosSecure.delete(`/bids/${id}`).then(data => {
+          console.log('data delete', data);
+          if (data.data.deletedCount) {
+            Swal.fire({
+              title: 'Deleted!',
+              text: 'Your bid has been deleted.',
+              icon: 'success',
+            });
+            const remeingBid = mybids.filter(bid => bid._id !== id);
+            setMyBids(remeingBid);
+          }
+        });
     });
   };
 

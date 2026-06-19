@@ -3,35 +3,39 @@ import { useLoaderData, useNavigate } from 'react-router';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import ProductBidsTable from './ProductBidsTable';
+import useAxiosSecure from '../hooks/useAxiosSecure';
 
 const ProductDetails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bids, setBids] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const axiosSecure = useAxiosSecure();
+
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const product = useLoaderData();
 
+  // when you fetch data use axios
+
   useEffect(() => {
-    fetch(`http://localhost:3000/product/bid/${product._id}`, {
-      headers: {
-        authorization: `Bearer ${user.accessToken}`,
-      },
-    })
-      .then(res => res.json())
-      .then(data => {
-        setBids(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Error fetching bids:', err);
-        setLoading(false);
-      });
-  }, [product._id, user]);
+    if (user?.email) {
+      axiosSecure
+        .get(`/product/bid/${product._id}`)
+        .then(data => {
+          console.log('Fetched Bids:', data.data);
+          setBids(data.data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error('Error fetching bids:', err);
+          setLoading(false);
+        });
+    }
+  }, [product._id, user?.email, axiosSecure]);
 
   // useEffect(() => {
-  //   fetch(`http://localhost:3000/product/bid/${product._id}`, {
+  //   fetch(`https://smart-deals-server-projects.vercel.app/product/bid/${product._id}`, {
   //     headers: {
   //       authorization: `Bearer ${user.accessToken}`,
   //     },
@@ -65,28 +69,28 @@ const ProductDetails = () => {
       status: 'pending',
     };
 
-    fetch('http://localhost:3000/bids', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(bidInfo),
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log(data);
-        if (data.insertedId) {
-          bidInfo._id = data.insertedId;
-          const newBid = [...bids, bidInfo].sort(
+    axiosSecure
+      .post('/bids', bidInfo)
+      .then(res => {
+        console.log(res.data);
+        if (res.data.insertedId) {
+          bidInfo._id = res.data.insertedId;
+          const newBids = [...bids, bidInfo].sort(
             (a, b) => b.bid_price - a.bid_price,
           );
-          setBids(newBid);
+          setBids(newBids);
           toast.success('Bid Submitted Successfully!');
           setIsModalOpen(false);
           navigate('/my-bids');
           form.reset();
         }
+      })
+      .catch(err => {
+        console.error('Error submitting bid:', err);
+        toast.error('Failed to submit bid!');
       });
+    if (loading)
+      return <div className="skeleton h-40 w-full mt-10">Loading...</div>;
   };
 
   return (
