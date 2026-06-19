@@ -1,16 +1,24 @@
 # React + Vite
+# Smart Deals - Client Side 🚀
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A dynamic and fully responsive frontend application for the **Smart Deals** platform. It allows users to browse products, place bids securely, and manage their bidding history seamlessly. 
 
-Currently, two official plugins are available:
+## ✨ Key Features
+* **Secure Authentication:** Integrated Firebase Authentication (Google/Email-Password) with seamless user state management.
+* **Dynamic Bidding System:** Users can place bids on specific products, view their "My Bids" dashboard, and delete pending bids.
+* **Protected Routes & Security:** Utilizes custom React hooks and Axios interceptors (`await user.getIdToken()`) to securely authorize API requests.
+* **Pixel-Perfect UI:** Fully responsive design crafted with Tailwind CSS for optimal viewing across all devices.
+* **Interactive UX:** Integrated SweetAlert2 for elegant alerts and confirmations.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠️ Tech Stack
+* **Core:** React (Vite), JavaScript (ES6+)
+* **Styling:** Tailwind CSS, DaisyUI
+* **Routing:** React Router 
+* **Authentication:** Firebase Auth
+* **API Calls:** Axios (with custom secure instances and interceptor)
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## ⚙️ Local Setup
+1. Clone the repository: `git clone <your-repo-link>`
+2. Install dependencies: `npm install`
+3. Create a `.env.local` file and add your Firebase config keys.
+4. Start the development server: `npm run dev`
